@@ -84,10 +84,12 @@ export default function AppShell({
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="min-h-screen  text-foreground flex flex-col">
+    {/* <div className="min-h-screen bg-background text-foreground flex flex-col"> */}
 
       {/* ================= HEADER ================= */}
-      <header className="flex items-center  justify-between px-4 md:px-6 py-3 bg-background/70 backdrop-blur-md">
+      <header className="flex items-center  justify-between px-4 md:px-6 py-3 ">
+      {/* <header className="flex items-center  justify-between px-4 md:px-6 py-3 bg-background/70 backdrop-blur-md"> */}
 
         {/* BRAND */}
         <div className="text-xs tracking-[0.35em] text-muted-foreground font-semibold">

@@ -133,7 +133,8 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground flex flex-col">
+    <main className="min-h-screen  text-foreground flex flex-col">
+    {/* <main className="min-h-screen bg-background text-foreground flex flex-col"> */}
 
       {/* TOP BAR */}
       <header className="flex justify-between items-center px-6 py-4">
