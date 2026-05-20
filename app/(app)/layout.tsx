@@ -21,7 +21,7 @@ import { useTheme } from "next-themes";
 import {
   Home,
   Target,
-  Archive,
+  
   LogOut,
   Sun,
   Moon,
@@ -85,12 +85,10 @@ export default function AppShell({
 
   return (
     <div className="min-h-screen  text-foreground flex flex-col">
-    {/* <div className="min-h-screen bg-background text-foreground flex flex-col"> */}
 
       {/* ================= HEADER ================= */}
-      <header className="flex items-center  justify-between px-4 md:px-6 py-3 ">
-      {/* <header className="flex items-center  justify-between px-4 md:px-6 py-3 bg-background/70 backdrop-blur-md"> */}
-
+      {/* <header className="flex items-center  justify-between px-4 md:px-6 py-3 "> */}
+<header className="sticky top-0 z-50 flex items-center justify-between px-4 md:px-6 py-3 ">
         {/* BRAND */}
         <div className="text-xs tracking-[0.35em] text-muted-foreground font-semibold">
           PARTH
@@ -99,9 +97,9 @@ export default function AppShell({
         {/* DESKTOP NAV */}
         <nav className="hidden md:flex items-center gap-2 bg-muted/40 p-1 rounded-full border shadow-sm">
           <NavItem icon={Home} label="Habit" path="/habit" />
-          <NavItem icon={Home} label="Today" path="/today" />
+        
           <NavItem icon={Target} label="Goal" path="/goal" />
-          <NavItem icon={Archive} label="Archive" path="/archive" />
+         
         </nav>
 
         {/* RIGHT CONTROLS */}
@@ -150,18 +148,18 @@ export default function AppShell({
       </main>
 
       {/* ================= MOBILE NAV ================= */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background grid grid-cols-4 py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background grid grid-cols-3 py-2">
 
         <button
-          onClick={() => router.push("/today")}
+          onClick={() => router.push("/habit")}
           className={`flex flex-col items-center text-xs gap-1 font-medium cursor-pointer ${
-            pathname === "/today"
+            pathname === "/habit"
               ? "text-primary"
               : "text-muted-foreground"
           }`}
         >
           <Home className="w-4 h-4" />
-          Today
+          Habit
         </button>
 
         <button
@@ -176,17 +174,6 @@ export default function AppShell({
           Goal
         </button>
 
-        <button
-          onClick={() => router.push("/archive")}
-          className={`flex flex-col items-center text-xs gap-1 font-medium cursor-pointer ${
-            pathname === "/archive"
-              ? "text-primary"
-              : "text-muted-foreground"
-          }`}
-        >
-          <Archive className="w-4 h-4" />
-          Archive
-        </button>
 
         <button
           onClick={logout}

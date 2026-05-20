@@ -109,7 +109,7 @@ export default function Page() {
         toast.success("Welcome back");
       }
 
-      router.push("/today");
+      router.push("/habit");
     } catch {
       toast.error("Authentication failed");
     } finally {
@@ -124,7 +124,7 @@ export default function Page() {
     try {
       await signInWithPopup(auth, googleProvider);
       toast.success("Signed in with Google");
-      router.push("/today");
+      router.push("/habit");
     } catch {
       toast.error("Google sign-in failed");
     } finally {
@@ -134,7 +134,6 @@ export default function Page() {
 
   return (
     <main className="min-h-screen  text-foreground flex flex-col">
-    {/* <main className="min-h-screen bg-background text-foreground flex flex-col"> */}
 
       {/* TOP BAR */}
       <header className="flex justify-between items-center px-6 py-4">
