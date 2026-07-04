@@ -1,5 +1,9 @@
-// import { initializeApp, getApps } from "firebase/app";
-// import { getAuth, GoogleAuthProvider } from "firebase/auth";
+
+
+// import { initializeApp } from "firebase/app";
+// import { getAuth } from "firebase/auth";
+// import { getFirestore } from "firebase/firestore";
+// import { GoogleAuthProvider } from "firebase/auth";
 
 // const firebaseConfig = {
 //   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -10,24 +14,24 @@
 //   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 // };
 
-// const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
+// const app = initializeApp(firebaseConfig);
 
+// // ✅ THESE ARE REQUIRED EXPORTS
 // export const auth = getAuth(app);
+// export const db = getFirestore(app);
 // export const googleProvider = new GoogleAuthProvider();
 
 
 
-
-
-
-
-
-
-
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { GoogleAuthProvider } from "firebase/auth";
+
+import {
+  getAI,
+  getGenerativeModel,
+  GoogleAIBackend,
+} from "firebase/ai";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -40,7 +44,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// ✅ THESE ARE REQUIRED EXPORTS
+// Firebase
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Firebase AI Logic
+const ai = getAI(app, {
+  backend: new GoogleAIBackend(),
+});
+
+export const geminiModel = getGenerativeModel(ai, {
+  model: "gemini-3.5-flash",
+});

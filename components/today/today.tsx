@@ -66,7 +66,7 @@ const habits = [
   },
 ];
 
-export default function HabitPage() {
+export default function Today() {
   const [time, setTime] = useState("");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 

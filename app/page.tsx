@@ -109,7 +109,7 @@ export default function Page() {
         toast.success("Welcome back");
       }
 
-      router.push("/habit");
+      router.push("/today");
     } catch {
       toast.error("Authentication failed");
     } finally {
@@ -124,7 +124,7 @@ export default function Page() {
     try {
       await signInWithPopup(auth, googleProvider);
       toast.success("Signed in with Google");
-      router.push("/habit");
+      router.push("/today");
     } catch {
       toast.error("Google sign-in failed");
     } finally {
