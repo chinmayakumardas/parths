@@ -1,184 +1,159 @@
 
+
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { Circle, Clock, CheckCircle2 } from "lucide-react";
+import type { DragEndEvent } from "../kibo-ui/list/index"; // adjust path
+import {
+  ListProvider,
+  ListGroup,
+  ListItems,
+  ListItem,
+  ListHeader,
+} from "../kibo-ui/list/index"; // adjust path
 
-const habits = [
-  {
-    id: "01",
-    start: 4,
-    end: 5,
-    title: "Wake Up",
-    desc: "Start early & grounded",
-    time: "04:00 AM",
-  },
-  {
-    id: "02",
-    start: 5,
-    end: 7,
-    title: "Gym",
-    desc: "Mind + Muscle",
-    time: "05:30 AM",
-  },
-  {
-    id: "03",
-    start: 7,
-    end: 8,
-    title: "No Doom Scrolling",
-    desc: "Protect focus & energy",
-  },
-  {
-    id: "04",
-    start: 8,
-    end: 9,
-    title: "Top 3 Tasks",
-    desc: "Think clearly before action",
-  },
-  {
-    id: "05",
-    start: 9,
-    end: 14,
-    title: "Skill Learning",
-    desc: "Learn valuable high-income skills",
-  },
-  {
-    id: "06",
-    start: 14,
-    end: 20,
-    title: "Building",
-    desc: "Create projects, products & systems",
-  },
-  {
-    id: "07",
-    start: 20,
-    end: 21,
-    title: "Journal",
-    desc: "Review day & plan tomorrow",
-    time: "09:00 PM",
-  },
-  {
-    id: "08",
-    start: 21,
-    end: 22,
-    title: "Go To Bed",
-    desc: "Recover & reset",
-    time: "10:00 PM",
-  },
+type TaskStatus = "todo" | "in-progress" | "done";
+
+type TimelineTask = {
+  id: string;
+  hour: number; // 0 to 23 representing the matching hour row
+  name: string;
+  description?: string;
+  status: TaskStatus;
+};
+
+// Your actual daily tasks mapped to specific hours
+const initialTasks: TimelineTask[] = [
+  { id: "t1", hour: 5, name: "Wake up & Hydrate", description: "Start the morning routine", status: "done" },
+  { id: "t2", hour: 6, name: "Meditate 10 minutes daily", description: "Mental health focus", status: "done" },
+  { id: "t3", hour: 7, name: "Exercise Session", description: "Cardio / Morning stretching", status: "in-progress" },
+  { id: "t4", hour: 8, name: "Breakfast & Prep", description: "Fueling up for the day", status: "todo" },
+  { id: "t5", hour: 9, name: "Master TypeScript", description: "Deep work & engineering block", status: "todo" },
+  { id: "t6", hour: 11, name: "Project Management", description: "Reviewing tasks & issue tracking", status: "todo" },
+  { id: "t7", hour: 12, name: "Lunch Break", status: "todo" },
+  { id: "t8", hour: 13, name: "Financial Tracking", description: "Budget optimization checks", status: "todo" },
+  { id: "t9", hour: 15, name: "Coding & Code Review", description: "Reviewing PRs and writing code", status: "todo" },
+  { id: "t10", hour: 18, name: "Dinner & Wind Down", status: "todo" },
+  { id: "t11", hour: 20, name: "Personal Growth Reading", description: "Read 12 books goal session", status: "todo" },
+  { id: "t12", hour: 22, name: "Rest & Sleep", description: "Night time rest routine", status: "todo" },
 ];
 
+// Helper to format 24h index integers into display strings (e.g., 5 -> "05:00 AM", 13 -> "01:00 PM")
+const formatHour = (h: number): string => {
+  const ampm = h >= 12 ? "PM" : "AM";
+  const displayHour = h % 12 === 0 ? 12 : h % 12;
+  const pad = displayHour < 10 ? "0" : "";
+  return `${pad}${displayHour}:00 ${ampm}`;
+};
+
 export default function Today() {
-  const [time, setTime] = useState("");
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [tasks, setTasks] = useState<TimelineTask[]>(initialTasks);
 
-  useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
+  const toggleStatus = (id: string) => {
+    setTasks((prev) =>
+      prev.map((task) => {
+        if (task.id !== id) return task;
+        let nextStatus: TaskStatus = "todo";
+        if (task.status === "todo") nextStatus = "in-progress";
+        else if (task.status === "in-progress") nextStatus = "done";
+        return { ...task, status: nextStatus };
+      })
+    );
+  };
 
-      const formatted = now.toLocaleTimeString("en-IN", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-      setTime(formatted);
+    // Grab the source task
+    const activeTask = tasks.find((t) => t.id === active.id);
+    if (!activeTask) return;
 
-      const currentHour = now.getHours();
+    // Use the "over" target hour directly to reschedule the item on the timeline matrix
+    const targetHour = parseInt(over.id as string, 10);
+    if (isNaN(targetHour)) return;
 
-      const active = habits.findIndex(
-        (habit) =>
-          currentHour >= habit.start &&
-          currentHour < habit.end
-      );
+    setTasks((prev) =>
+      prev.map((t) => (t.id === active.id ? { ...t, hour: targetHour } : t))
+    );
+  };
 
-      setActiveIndex(active !== -1 ? active : null);
-    };
+  const StatusButton = ({ status }: { status: TaskStatus }) => {
+    const iconClass = "w-5 h-5 transition-transform active:scale-90 cursor-pointer shrink-0 mt-0.5";
+    switch (status) {
+      case "done":
+        return <CheckCircle2 className={`${iconClass} text-emerald-500 fill-emerald-50`} />;
+      case "in-progress":
+        return <Clock className={`${iconClass} text-amber-500 animate-pulse`} />;
+      default:
+        return <Circle className={`${iconClass} text-slate-300 hover:text-slate-400`} />;
+    }
+  };
 
-    updateClock();
-
-    const interval = setInterval(updateClock, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
+  // Generate a flat grid of 24 slots (from 0 to 23 hours)
+  const hoursGrid = Array.from({ length: 24 }, (_, i) => i);
 
   return (
-    <main className=" px-5 py-8 text-sm">
-      <div className="mx-auto max-w-5xl">
-        {/* TOP */}
-        <div className="mb-12 flex items-start justify-between  pb-6">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
-            Discipline
-          </p>
+    <div className="p-6 max-w-xl mx-auto">
+      <ListProvider onDragEnd={onDragEnd}>
+        <ListGroup id="goals" className="rounded-xl border shadow-sm overflow-hidden">
+           <ListHeader name="Today tasks" color="#3b82f6" />
+          <ListItems>
+            {hoursGrid.map((hourIndex) => {
+              // Find if there's an assigned task for this specific hour row
+              const matchingTask = tasks.find((t) => t.hour === hourIndex);
 
-          <div className="text-right">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-              Current Time
-            </p>
+              return (
+                <ListItem key={hourIndex} id={matchingTask ? matchingTask.id : hourIndex.toString()}>
+                  <div className="flex items-start gap-4 w-full py-1">
+                    
+                    {/* Continuous static timeline clock column - Always Visible */}
+                    <div className="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded min-w-[75px] text-center shrink-0 select-none">
+                      {formatHour(hourIndex)}
+                    </div>
 
-            <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-              {time}
-            </h2>
-          </div>
-        </div>
+                    {matchingTask ? (
+                      <>
+                        {/* Status Toggle Action Button */}
+                        <button 
+                          onClick={() => toggleStatus(matchingTask.id)}
+                          className="focus:outline-none"
+                        >
+                          <StatusButton status={matchingTask.status} />
+                        </button>
 
-        {/* TIMELINE */}
-        <div className="grid gap-x-16 md:grid-cols-2">
-          {habits.map((habit, index) => {
-            const isActive = activeIndex === index;
+                        {/* Configured Text Content layout block */}
+                        <div className="flex flex-col gap-1 flex-1 min-w-0">
+                          <p className={`text-sm font-medium ${
+                            matchingTask.status === "done" ? "line-through text-slate-400" : "text-slate-900"
+                          }`}>
+                            {matchingTask.name}
+                          </p>
+                          
+                          {matchingTask.description && (
+                            <span className={`text-xs ${
+                              matchingTask.status === "done" ? "text-slate-300" : "text-slate-500"
+                            }`}>
+                              {matchingTask.description}
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      /* Fallback structure when no task occupies this row index slot */
+                      <div className="flex-1 flex items-center min-h-[28px]">
+                        <span className="text-xs italic text-slate-300 select-none">Free Slot</span>
+                      </div>
+                    )}
 
-            return (
-              <div
-                key={habit.id}
-                className={`flex items-start justify-between border-b py-5 transition-all ${
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
-              >
-                <div className="flex items-start gap-4">
-                  {/* NUMBER */}
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border text-[11px] font-semibold transition-all ${
-                      isActive
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border"
-                    }`}
-                  >
-                    {habit.id}
                   </div>
-
-                  {/* CONTENT */}
-                  <div>
-                    <h3
-                      className={`text-sm tracking-tight ${
-                        isActive
-                          ? "font-semibold"
-                          : "font-medium"
-                      }`}
-                    >
-                      {habit.title}
-                    </h3>
-
-                    <p className="mt-1 text-xs">
-                      {habit.desc}
-                    </p>
-                  </div>
-                </div>
-
-                {/* OPTIONAL TIME */}
-                {habit.time && (
-                  <p
-                    className={`text-xs tracking-wide ${
-                      isActive ? "font-semibold" : ""
-                    }`}
-                  >
-                    {habit.time}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </main>
+                </ListItem>
+              );
+            })}
+          </ListItems>
+        </ListGroup>
+      </ListProvider>
+    </div>
   );
 }

@@ -1,4 +1,10 @@
-import Goal from "@/components/goal/goal";
+
+
+
+
+import GoalHeader from "@/components/goal/GoalHeader";
+import GoalList from "@/components/goal/GoalList";
+
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,5 +14,12 @@ export const metadata: Metadata = {
 };
 
 export default function GoalPage() {
-  return <Goal />;
+  return (
+    <main className="px-5 py-8">
+      <div className="mx-auto ">
+        {/* <GoalHeader  /> */}
+        <GoalList  />
+      </div>
+    </main>
+  );
 }

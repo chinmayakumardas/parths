@@ -3,18 +3,32 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
+import ServiceWorker from "@/components/service-worker";
+
+
 
 export const metadata: Metadata = {
-  title: "Parth AI- Chinmaya Kumar",
-  description: "Minimal AI-powered life manager",
-  keywords: [
-    "Parth AI",
-    "Productivity",
-    "Task Manager",
-    "Life Manager",
-  ],
-};
+  title: "Parth AI",
 
+  description: "AI-powered personal productivity assistant",
+
+  applicationName: "Parth AI",
+
+  manifest: "/manifest.webmanifest",
+
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Parth AI",
+  },
+
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
+
+  themeColor: "#09090b",
+};
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -23,7 +37,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers> 
+
+                 <ServiceWorker />
+{children}
+</Providers>
       </body>
     </html>
   );
