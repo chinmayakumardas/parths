@@ -2,7 +2,7 @@
 
 
 
-import GoalHeader from "@/components/goal/GoalHeader";
+// import GoalHeader from "@/components/goal/GoalHeader";
 import GoalList from "@/components/goal/GoalList";
 
 import type { Metadata } from "next";
