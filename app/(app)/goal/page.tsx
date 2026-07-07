@@ -2,7 +2,6 @@
 
 
 
-// import GoalHeader from "@/components/goal/GoalHeader";
 import GoalList from "@/components/goal/GoalList";
 
 import type { Metadata } from "next";
@@ -17,9 +16,12 @@ export default function GoalPage() {
   return (
     <main className="px-5 py-8">
       <div className="mx-auto ">
-        {/* <GoalHeader  /> */}
         <GoalList  />
       </div>
     </main>
   );
 }
+
+
+
+
