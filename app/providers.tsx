@@ -52,7 +52,7 @@ export default function Providers({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider>
+    
       <AuthProvider>
         <div className="fixed inset-0 -z-10">
           <BackgroundPattern />
@@ -63,6 +63,6 @@ export default function Providers({
           {children}
         </div>
       </AuthProvider>
-    </ThemeProvider>
+   
   );
 }

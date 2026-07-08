@@ -2,9 +2,11 @@
 
 import type { Metadata } from "next";
 import "./globals.css";
-import Providers from "./providers";
 import ServiceWorker from "@/components/service-worker";
 
+import {
+ AuthProvider
+} from "@/lib/auth-context";
 
 
 export const metadata: Metadata = {
@@ -37,11 +39,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers> 
+     <AuthProvider>
 
                  <ServiceWorker />
 {children}
-</Providers>
+
+</AuthProvider>
+
       </body>
     </html>
   );

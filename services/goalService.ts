@@ -1,192 +1,119 @@
-// src/services/goalService.ts
+import { supabase } from "@/lib/supabase";
 
-import { db } from "@/lib/firebase";
-import { Goal } from "@/types/goal";
 
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-
-/**
- * Get the user's goal collection
- */
-const goalCollection = (uid: string) =>
-  collection(db, "users", uid, "goals");
-
-/**
- * Add Goal
- */
 export async function addGoal(
-  uid: string,
-  goal: Omit<Goal, "id" | "createdAt" | "updatedAt">
-) {
-  try {
-    const docRef = await addDoc(goalCollection(uid), {
-      ...goal,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-
-    return docRef.id;
-  } catch (error) {
-    console.error("Error adding goal:", error);
-    throw error;
+  goal:{
+    title:string;
+    description?:string;
+    status:string;
+    progress:number;
   }
-}
+){
 
-/**
- * Get All Goals
- */
-export async function getGoals(uid: string): Promise<Goal[]> {
-  try {
-    const q = query(goalCollection(uid), orderBy("createdAt", "desc"));
-
-    const snapshot = await getDocs(q);
-
-    return snapshot.docs.map((docSnap) => ({
-      id: docSnap.id,
-      ...(docSnap.data() as Omit<Goal, "id">),
-    }));
-  } catch (error) {
-    console.error("Error fetching goals:", error);
-    throw error;
-  }
-}
-
-/**
- * Get Single Goal
- */
-export async function getGoal(
-  uid: string,
-  goalId: string
-): Promise<Goal | null> {
-  try {
-    const docRef = doc(db, "users", uid, "goals", goalId);
-
-    const snapshot = await getDoc(docRef);
-
-    if (!snapshot.exists()) {
-      return null;
+  const {
+    data:{
+      user
     }
+  } = await supabase.auth.getUser();
 
-    return {
-      id: snapshot.id,
-      ...(snapshot.data() as Omit<Goal, "id">),
-    };
-  } catch (error) {
-    console.error("Error getting goal:", error);
+
+  if(!user){
+    throw new Error("Not authenticated");
+  }
+
+
+  const {data,error}=await supabase
+    .from("goals")
+    .insert({
+      user_id:user.id,
+      ...goal
+    })
+    .select()
+    .single();
+
+
+  if(error){
     throw error;
   }
+
+
+  return data;
 }
 
-/**
- * Update Goal
- */
+
+
+export async function getGoals(){
+
+ const {
+    data:{
+      user
+    }
+ } = await supabase.auth.getUser();
+
+
+ if(!user){
+   return [];
+ }
+
+
+ const {data,error}=await supabase
+ .from("goals")
+ .select("*")
+ .order(
+   "created_at",
+   {
+    ascending:false
+   }
+ );
+
+
+ if(error){
+   throw error;
+ }
+
+
+ return data;
+
+}
+
+
+
+
 export async function updateGoal(
-  uid: string,
-  goalId: string,
-  data: Partial<Goal>
-) {
-  try {
-    const docRef = doc(db, "users", uid, "goals", goalId);
+ id:string,
+ updates:any
+){
 
-    await updateDoc(docRef, {
-      ...data,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Error updating goal:", error);
-    throw error;
-  }
+ const {error}=await supabase
+ .from("goals")
+ .update({
+   ...updates,
+   updated_at:new Date()
+ })
+ .eq("id",id);
+
+
+ if(error){
+  throw error;
+ }
+
 }
 
-/**
- * Update Progress
- */
-export async function updateGoalProgress(
-  uid: string,
-  goalId: string,
-  progress: number
-) {
-  try {
-    const docRef = doc(db, "users", uid, "goals", goalId);
 
-    await updateDoc(docRef, {
-      progress,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Error updating goal progress:", error);
-    throw error;
-  }
-}
 
-/**
- * Change Goal Status
- */
-export async function updateGoalStatus(
-  uid: string,
-  goalId: string,
-  status: Goal["status"]
-) {
-  try {
-    const docRef = doc(db, "users", uid, "goals", goalId);
 
-    await updateDoc(docRef, {
-      status,
-      completedAt: status === "completed" ? serverTimestamp() : null,
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Error updating goal status:", error);
-    throw error;
-  }
-}
-
-/**
- * Complete Goal
- */
-export async function completeGoal(
-  uid: string,
-  goalId: string
-) {
-  try {
-    const docRef = doc(db, "users", uid, "goals", goalId);
-
-    await updateDoc(docRef, {
-      progress: 100,
-      status: "completed",
-      completedAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error("Error completing goal:", error);
-    throw error;
-  }
-}
-
-/**
- * Delete Goal
- */
 export async function deleteGoal(
-  uid: string,
-  goalId: string
-) {
-  try {
-    const docRef = doc(db, "users", uid, "goals", goalId);
+ id:string
+){
 
-    await deleteDoc(docRef);
-  } catch (error) {
-    console.error("Error deleting goal:", error);
-    throw error;
-  }
+ const {error}=await supabase
+ .from("goals")
+ .delete()
+ .eq("id",id);
+
+
+ if(error){
+  throw error;
+ }
+
 }
