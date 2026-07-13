@@ -305,10 +305,27 @@ import { Sun, Moon, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+<<<<<<< HEAD
+import {db, auth, googleProvider } from "@/lib/firebase";
+import {
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
+import { createDefaultPillars } from "@/lib/default-pillars";
+=======
 import { supabase } from "@/lib/supabase";
+>>>>>>> e7af21c2414436550645bf580f15d597ab7bcda7
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 export default function Page() {
   const router = useRouter();
 
@@ -374,6 +391,54 @@ export default function Page() {
 
   const strength = getStrength(passClean);
 
+<<<<<<< HEAD
+  // email auth
+ 
+const handleEmail = async () => {
+  if (!isValid) {
+    toast.error("Invalid email or password");
+    return;
+  }
+
+  setLoadingEmail(true);
+
+  try {
+    if (mode === "signup") {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        emailClean,
+        passClean
+      );
+
+      const user = userCredential.user;
+await setDoc(doc(db, "users", user.uid), {
+  name: user.displayName || "",
+  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  createdAt: serverTimestamp(),
+});
+
+// Create default pillars
+await createDefaultPillars(user.uid);
+
+toast.success("Account created");
+    } else {
+      await signInWithEmailAndPassword(auth, emailClean, passClean);
+      toast.success("Welcome back");
+    }
+
+    router.push("/today");
+  } catch (error: any) {
+   console.error("ERROR:", error);
+  toast.error(error.message);
+  } finally {
+    setLoadingEmail(false);
+  }
+};
+  // google auth
+
+const handleGoogle = async () => {
+  setLoadingGoogle(true);
+=======
   // Email Auth
   const handleEmail = async () => {
     if (!isValid) {
@@ -424,7 +489,36 @@ export default function Page() {
       setLoadingGoogle(false);
     }
   };
+>>>>>>> e7af21c2414436550645bf580f15d597ab7bcda7
 
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+
+    const user = result.user;
+
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+
+ if (!snap.exists()) {
+  await setDoc(userRef, {
+    name: user.displayName || "",
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    createdAt: serverTimestamp(),
+  });
+
+  // Create default pillars
+  await createDefaultPillars(user.uid);
+}
+
+    toast.success("Signed in with Google");
+    router.push("/today");
+  } catch (error: any) {
+    console.error("ERROR:", error);
+    toast.error(error.message);
+  } finally {
+    setLoadingGoogle(false);
+  }
+};
   return (
     <main className="min-h-screen text-foreground flex flex-col">
       {/* TOP BAR */}

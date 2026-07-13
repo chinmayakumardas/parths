@@ -2,8 +2,8 @@
 
 "use client";
 
-import React, { useState } from "react";
-import { Circle, Clock, CheckCircle2, Trash2, Edit2, Plus, GripVertical } from "lucide-react";
+import React, { useState,useEffect } from "react";
+import { Circle, Clock, CheckCircle2, Trash2, Edit2, GripVertical } from "lucide-react";
 import type { DragEndEvent } from "../kibo-ui/list/index";
 
 import {
@@ -14,24 +14,36 @@ import {
   ListItem,
 } from "../kibo-ui/list/index";
 
-import { useGoals } from "@/hooks/useGoals";
-import { CreateGoalDialog } from "./CreateGoalDialog";
+import { auth } from "@/lib/firebase";
+import {
+  getGoals,
+  updateGoal as updateGoalService,
+  deleteGoal as deleteGoalService,
+} from "@/services/goalService";
 import { EditGoalDialog } from "./EditGoalDialog";
 import { DeleteGoalDialog } from "./DeleteGoalDialog";
 
 import type { Goal } from "@/types/goal";
 
 export default function GoalsList() {
-  const { goals, createGoal, updateGoal, deleteGoal } = useGoals();
-
-  const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
+const [goals, setGoals] = useState<Goal[]>([]);
+const [loading, setLoading] = useState(true);
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
   const [deletingGoalId, setDeletingGoalId] = useState<string | null>(null);
 
-  const handleCreateGoal = async (title: string, description?: string) => {
-    await createGoal({ title, description });
-    // setIsCreateOpen(false);
+ useEffect(() => {
+  const loadGoals = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    setLoading(true);
+    const data = await getGoals(user.uid);
+    setGoals(data);
+    setLoading(false);
   };
+
+  loadGoals();
+}, []);
 
   const handleSaveEditGoal = async (title: string, description?: string) => {
     if (!editingGoal) return;
@@ -70,17 +82,7 @@ export default function GoalsList() {
 
   return (
     <div className="min-h-screen">
-      {/* Add Goal Button */}
-      <div className="fixed top-[35px] right-10 md:right-[calc(50%-272px)] z-50">
-        <button
-          type="button"
-          onClick={() => setIsCreateOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-lg shadow-sm cursor-pointer hover:bg-primary/90"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          Add Goal
-        </button>
-      </div>
+ 
 
       <div className="max-w-xl mx-auto relative pt-6">
         <ListProvider onDragEnd={onDragEnd} className="pointer-events-none">
@@ -168,12 +170,7 @@ export default function GoalsList() {
         </ListProvider>
       </div>
 
-      {/* Dialogs */}
-      <CreateGoalDialog
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        onCreate={handleCreateGoal}
-      />
+  
       <EditGoalDialog
         goal={editingGoal}
         onClose={() => setEditingGoal(null)}
